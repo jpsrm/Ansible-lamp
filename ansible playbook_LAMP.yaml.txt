@@ -1,0 +1,51 @@
+- name: Configure basic LAMP stack on Ubuntu
+  hosts: webserver
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3  # Specify Python 3 interpreter path
+    mysql_root_password: root
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+
+    - name: Ensure Apache starts on boot
+      service:
+        name: apache2
+        enabled: yes
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Install PHP and necessary modules
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - php
+        - libapache2-mod-php
+        - php-mysql
+        - php-cli
+        - php-curl
+        - php-gd
+        - php-intl
+        - php-mbstring
+        - php-xml
+        - php-zip
+
+    - name: Restart Apache to apply PHP module changes
+      service:
+        name: apache2
+        state: restarted
